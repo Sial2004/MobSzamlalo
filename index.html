@@ -6,48 +6,48 @@
   <title>Szorzó Táblázat</title>
   <style>
     :root {
-      --bg-color: #1e1e1e;
-      --text-color: #e0e0e0;
-      --input-bg: #2b2b2b;
+      --bg: #121212;
+      --text: #e0e0e0;
       --accent: #ffda6b;
-      --table-bg: #2c2c2c;
-      --table-head: #383838;
-      --hover: #3c3c3c;
+      --input-bg: #1e1e1e;
+      --table-bg: #1e1e1e;
+      --border: #333;
+      --hover: #2a2a2a;
     }
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
-      padding: 20px;
+      background: var(--bg);
+      color: var(--text);
       margin: 0 auto;
-      max-width: 900px;
+      padding: 16px;
+      max-width: 600px;
+      line-height: 1.4;
     }
 
     h2 {
-      font-weight: 400;
-      margin-bottom: 20px;
-      color: var(--accent);
-      font-size: 1.3rem;
       text-align: center;
+      color: var(--accent);
+      font-size: 1.4rem;
+      margin-bottom: 16px;
     }
 
     input {
-      font-size: 1rem;
-      padding: 10px 15px;
-      margin: 10px auto 20px;
-      border-radius: 6px;
-      border: 1px solid #666;
-      background-color: var(--input-bg);
-      color: var(--text-color);
-      width: 100%;
-      max-width: 300px;
       display: block;
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto 20px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
       outline: none;
     }
-
     input::placeholder {
-      color: #999;
+      color: #888;
     }
 
     .table-container {
@@ -55,42 +55,44 @@
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
-      min-width: 600px;
-      background-color: var(--table-bg);
-      border: 1px solid #444;
-      border-radius: 6px;
-      overflow: hidden;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      min-width: 480px;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 8px;
+      background: var(--table-bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
     }
 
     th, td {
-      padding: 14px 18px;
-      border-bottom: 1px solid #444;
+      padding: 12px 16px;
       text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
     }
-
     th {
-      background-color: var(--table-head);
-      color: var(--text-color);
-      font-weight: 600;
+      background: var(--input-bg);
+      color: var(--accent);
+      position: sticky;
+      top: 0;
     }
 
-    tr:hover {
-      background-color: var(--hover);
+    tbody tr:hover {
+      background: var(--hover);
     }
 
-    @media (max-width: 600px) {
-      body {
-        padding: 15px;
+    @media (max-width: 360px) {
+      th, td {
+        padding: 8px 10px;
+        font-size: 0.85rem;
       }
     }
   </style>
 </head>
 <body>
 
-  <h2>Kérlek add meg a lespawnolt mobok mennyiségét:</h2>
+  <h2>Mob Drop → Pénz → Spawner Kalkulátor</h2>
   <input id="inputNumber" placeholder="pl. 300B" oninput="calculate()" />
 
   <div class="table-container">
@@ -100,7 +102,7 @@
           <th>Szorzó</th>
           <th>Drop</th>
           <th>Ennyi jön</th>
-          <th>Ennyi spawnert vehetsz:</th>
+          <th>Spawnerek száma</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
@@ -108,60 +110,48 @@
   </div>
 
   <script>
-    const suffixes = {
-      K: 1e3, M: 1e6, B: 1e9, T: 1e12, Qa: 1e15, Qt: 1e18
-    };
+    const suffixes = { K:1e3, M:1e6, B:1e9, T:1e12, Qa:1e15, Qt:1e18 };
 
-    function parseShorthand(input) {
-      const match = input.match(/^([\d.]+)\s*([a-zA-Z]*)$/);
-      if (!match) return NaN;
-      const [, num, suffix] = match;
-      const multiplier = suffixes[suffix] || 1;
-      return parseFloat(num) * multiplier;
+    function parseShorthand(s) {
+      const m = s.trim().match(/^([\d.]+)\s*([a-zA-Z]*)$/);
+      if (!m) return NaN;
+      const num = parseFloat(m[1]), suf = m[2];
+      return num * (suffixes[suf] || 1);
     }
-
-    function formatShorthand(num) {
-      const entries = Object.entries(suffixes).reverse();
-      for (const [suffix, value] of entries) {
-        if (num >= value) {
-          return (num / value).toFixed(2) + suffix;
-        }
-      }
-      return num.toFixed(2);
+    function formatShorthand(n) {
+      for (const [suf, val] of Object.entries(suffixes).reverse())
+        if (n >= val) return (n/val).toFixed(2) + suf;
+      return n.toFixed(2);
     }
 
     function calculate() {
-      const baseInput = document.getElementById('inputNumber').value.trim();
-      const baseValue = parseShorthand(baseInput);
-      const tableBody = document.getElementById('tableBody');
-      tableBody.innerHTML = '';
+      const inp = document.getElementById('inputNumber');
+      const v = parseShorthand(inp.value);
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      const tbl = document.getElementById('resultTable');
 
-      if (isNaN(baseValue) || baseInput === '') {
-        document.getElementById('resultTable').style.display = 'none';
+      if (!inp.value.trim() || isNaN(v)) {
+        tbl.style.display = 'none';
         return;
       }
 
-      const multiplier = 16880;
-      const divisor = 195_000_000;
-
+      const mul = 16880, div = 195_000_000;
       for (let i = 1; i <= 4; i++) {
-        const num1 = baseValue * i;
-        const multiplied = num1 * multiplier;
-        const finalResult = multiplied / divisor;
-
-        const row = `
-          <tr>
-            <td>${i}x</td>
-            <td>${formatShorthand(num1)}</td>
-            <td>${formatShorthand(multiplied)}</td>
-            <td>${formatShorthand(finalResult)}</td>
-          </tr>
-        `;
-        tableBody.innerHTML += row;
+        const drop = v * i;
+        const out = drop * mul;
+        const spawners = out / div;
+        const row = `<tr>
+          <td>${i}x</td>
+          <td>${formatShorthand(drop)}</td>
+          <td>${formatShorthand(out)}</td>
+          <td>${formatShorthand(spawners)}</td>
+        </tr>`;
+        tbody.insertAdjacentHTML('beforeend', row);
       }
-
-      document.getElementById('resultTable').style.display = 'table';
+      tbl.style.display = 'table';
     }
   </script>
+
 </body>
 </html>
