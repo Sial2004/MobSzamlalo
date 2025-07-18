@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <title>Szorzó Táblázat</title>
+  <style>
+    :root {
+      --bg-color: #1e1e1e;
+      --text-color: #e0e0e0;
+      --input-bg: #2b2b2b;
+      --accent: #ffda6b;
+      --table-bg: #2c2c2c;
+      --table-head: #383838;
+      --hover: #3c3c3c;
+    }
+
+    body.light {
+      --bg-color: #f6f6f6;
+      --text-color: #1c1c1c;
+      --input-bg: #ffffff;
+      --accent: #ffb300;
+      --table-bg: #fff;
+      --table-head: #eaeaea;
+      --hover: #f2f2f2;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      padding: 40px;
+      max-width: 900px;
+      margin: auto;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h2 {
+      font-weight: 400;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+
+    input, button {
+      font-size: 1rem;
+      padding: 10px 15px;
+      margin: 10px 5px;
+      border-radius: 6px;
+      border: 1px solid #999;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    input {
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid #666;
+      width: 220px;
+    }
+
+    input::placeholder {
+      color: #999;
+    }
+
+    button {
+      background-color: var(--accent);
+      color: #1e1e1e;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .theme-toggle svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--accent);
+      transition: transform 0.3s ease, fill 0.3s ease;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 30px;
+      background-color: var(--table-bg);
+      border: 1px solid #444;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    th, td {
+      padding: 14px 18px;
+      border-bottom: 1px solid #444;
+    }
+
+    th {
+      background-color: var(--table-head);
+      color: var(--text-color);
+      font-weight: 600;
+      text-align: left;
+    }
+
+    tr:hover {
+      background-color: var(--hover);
+    }
+
+    @media (max-width: 600px) {
+      input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Téma váltása">
+    <svg id="themeIcon" viewBox="0 0 24 24">
+      <path d="M12 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm5.657 2.343a1 1 0 011.414 1.414L18.414 8.414a1 1 0 01-1.414-1.414l1.657-1.657zM21 11a1 1 0 110 2h-1a1 1 0 110-2h1zm-2.343 5.657a1 1 0 00-1.414 1.414l1.657 1.657a1 1 0 101.414-1.414l-1.657-1.657zM13 20a1 1 0 10-2 0v1a1 1 0 002 0v-1zm-7.657-2.343a1 1 0 00-1.414 1.414L5.586 21a1 1 0 001.414-1.414l-1.657-1.657zM4 11a1 1 0 100 2H3a1 1 0 100-2h1zm2.343-5.657a1 1 0 011.414-1.414L9.414 6.586A1 1 0 018 8l-1.657-1.657zM12 6a6 6 0 100 12 6 6 0 000-12z"/>
+    </svg>
+  </button>
+
+  <h2>Kérlek add meg a számot:</h2>
+  <input id="inputNumber" placeholder="pl. 300B" />
+  <button onclick="calculate()">Számol</button>
+
+  <table id="resultTable" style="display:none">
+    <thead>
+      <tr>
+        <th>Szorzó</th>
+        <th>Drop</th>
+        <th>Ennyi jön</th>
+        <th>Ennyi spawnert vehetsz:</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script>
+    const suffixes = {
+      K: 1e3, M: 1e6, B: 1e9, T: 1e12, Qa: 1e15, Qt: 1e18
+    };
+
+    function parseShorthand(input) {
+      const match = input.match(/^([\d.]+)\s*([a-zA-Z]*)$/);
+      if (!match) return NaN;
+      const [, num, suffix] = match;
+      const multiplier = suffixes[suffix] || 1;
+      return parseFloat(num) * multiplier;
+    }
+
+    function formatShorthand(num) {
+      const entries = Object.entries(suffixes).reverse();
+      for (const [suffix, value] of entries) {
+        if (num >= value) {
+          return (num / value).toFixed(2) + suffix;
+        }
+      }
+      return num.toFixed(2);
+    }
+
+    function calculate() {
+      const baseInput = document.getElementById('inputNumber').value.trim();
+      const baseValue = parseShorthand(baseInput);
+
+      if (isNaN(baseValue)) {
+        alert('Érvénytelen számformátum!');
+        return;
+      }
+
+      const multiplier = 16880;
+      const divisor = 195_000_000;
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+
+      for (let i = 1; i <= 4; i++) {
+        const num1 = baseValue * i;
+        const multiplied = num1 * multiplier;
+        const finalResult = multiplied / divisor;
+
+        const row = `
+          <tr>
+            <td>${i}x</td>
+            <td>${formatShorthand(num1)}</td>
+            <td>${formatShorthand(multiplied)}</td>
+            <td>${formatShorthand(finalResult)}</td>
+          </tr>
+        `;
+        tableBody.innerHTML += row;
+      }
+
+      document.getElementById('resultTable').style.display = 'table';
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const icon = document.getElementById('themeIcon');
+
+      body.classList.toggle('light');
+
+      // Ikonváltás nap ↔ hold (alap: nap)
+      if (body.classList.contains('light')) {
+        icon.innerHTML = `<path d="M21.64 13.07A9 9 0 1110.93 2.36a7 7 0 1010.71 10.71z"/>`;
+      } else {
+        icon.innerHTML = `<path d="M12 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm5.657 2.343a1 1 0 011.414 1.414L18.414 8.414a1 1 0 01-1.414-1.414l1.657-1.657zM21 11a1 1 0 110 2h-1a1 1 0 110-2h1zm-2.343 5.657a1 1 0 00-1.414 1.414l1.657 1.657a1 1 0 101.414-1.414l-1.657-1.657zM13 20a1 1 0 10-2 0v1a1 1 0 002 0v-1zm-7.657-2.343a1 1 0 00-1.414 1.414L5.586 21a1 1 0 001.414-1.414l-1.657-1.657zM4 11a1 1 0 100 2H3a1 1 0 100-2h1zm2.343-5.657a1 1 0 011.414-1.414L9.414 6.586A1 1 0 018 8l-1.657-1.657zM12 6a6 6 0 100 12 6 6 0 000-12z"/>`;
+      }
+    }
+  </script>
+</body>
+</html>
