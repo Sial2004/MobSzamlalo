@@ -14,16 +14,6 @@
       --hover: #3c3c3c;
     }
 
-    body.light {
-      --bg-color: #f6f6f6;
-      --text-color: #1c1c1c;
-      --input-bg: #ffffff;
-      --accent: #ffb300;
-      --table-bg: #fff;
-      --table-head: #eaeaea;
-      --hover: #f2f2f2;
-    }
-
     body {
       font-family: 'Segoe UI', sans-serif;
       background: var(--bg-color);
@@ -73,28 +63,6 @@
       opacity: 0.9;
     }
 
-    .theme-toggle {
-      background: none;
-      border: none;
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      cursor: pointer;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
-
-    .theme-toggle svg {
-      width: 24px;
-      height: 24px;
-      fill: var(--accent);
-      transition: transform 0.3s ease, fill 0.3s ease;
-    }
-
     table {
       border-collapse: collapse;
       width: 100%;
@@ -130,11 +98,6 @@
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Téma váltása">
-    <svg id="themeIcon" viewBox="0 0 24 24">
-      <path d="M12 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm5.657 2.343a1 1 0 011.414 1.414L18.414 8.414a1 1 0 01-1.414-1.414l1.657-1.657zM21 11a1 1 0 110 2h-1a1 1 0 110-2h1zm-2.343 5.657a1 1 0 00-1.414 1.414l1.657 1.657a1 1 0 101.414-1.414l-1.657-1.657zM13 20a1 1 0 10-2 0v1a1 1 0 002 0v-1zm-7.657-2.343a1 1 0 00-1.414 1.414L5.586 21a1 1 0 001.414-1.414l-1.657-1.657zM4 11a1 1 0 100 2H3a1 1 0 100-2h1zm2.343-5.657a1 1 0 011.414-1.414L9.414 6.586A1 1 0 018 8l-1.657-1.657zM12 6a6 6 0 100 12 6 6 0 000-12z"/>
-    </svg>
-  </button>
 
   <h2>Kérlek add meg a lespawnolt mobok mennyiségét:</h2>
   <input id="inputNumber" placeholder="pl. 300B" />
@@ -206,20 +169,6 @@
       }
 
       document.getElementById('resultTable').style.display = 'table';
-    }
-
-    function toggleTheme() {
-      const body = document.body;
-      const icon = document.getElementById('themeIcon');
-
-      body.classList.toggle('light');
-
-      // Ikonváltás nap ↔ hold (alap: nap)
-      if (body.classList.contains('light')) {
-        icon.innerHTML = `<path d="M21.64 13.07A9 9 0 1110.93 2.36a7 7 0 1010.71 10.71z"/>`;
-      } else {
-        icon.innerHTML = `<path d="M12 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm5.657 2.343a1 1 0 011.414 1.414L18.414 8.414a1 1 0 01-1.414-1.414l1.657-1.657zM21 11a1 1 0 110 2h-1a1 1 0 110-2h1zm-2.343 5.657a1 1 0 00-1.414 1.414l1.657 1.657a1 1 0 101.414-1.414l-1.657-1.657zM13 20a1 1 0 10-2 0v1a1 1 0 002 0v-1zm-7.657-2.343a1 1 0 00-1.414 1.414L5.586 21a1 1 0 001.414-1.414l-1.657-1.657zM4 11a1 1 0 100 2H3a1 1 0 100-2h1zm2.343-5.657a1 1 0 011.414-1.414L9.414 6.586A1 1 0 018 8l-1.657-1.657zM12 6a6 6 0 100 12 6 6 0 000-12z"/>`;
-      }
     }
   </script>
 </body>
