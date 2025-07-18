@@ -30,37 +30,22 @@
       color: var(--accent);
     }
 
-    input, button {
+    input {
       font-size: 1rem;
       padding: 10px 15px;
       margin: 10px 5px;
       border-radius: 6px;
       border: 1px solid #999;
-      outline: none;
-      transition: all 0.3s;
-    }
-
-    input {
       background-color: var(--input-bg);
       color: var(--text-color);
       border: 1px solid #666;
       width: 220px;
+      outline: none;
+      transition: all 0.3s;
     }
 
     input::placeholder {
       color: #999;
-    }
-
-    button {
-      background-color: var(--accent);
-      color: #1e1e1e;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-    }
-
-    button:hover {
-      opacity: 0.9;
     }
 
     table {
@@ -100,8 +85,7 @@
 <body>
 
   <h2>Kérlek add meg a lespawnolt mobok mennyiségét:</h2>
-  <input id="inputNumber" placeholder="pl. 300B" />
-  <button onclick="calculate()">Számol</button>
+  <input id="inputNumber" placeholder="pl. 300B" oninput="calculate()" />
 
   <table id="resultTable" style="display:none">
     <thead>
@@ -142,15 +126,16 @@
       const baseInput = document.getElementById('inputNumber').value.trim();
       const baseValue = parseShorthand(baseInput);
 
-      if (isNaN(baseValue)) {
-        alert('Érvénytelen számformátum!');
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+
+      if (isNaN(baseValue) || baseInput === '') {
+        document.getElementById('resultTable').style.display = 'none';
         return;
       }
 
       const multiplier = 16880;
       const divisor = 195_000_000;
-      const tableBody = document.getElementById('tableBody');
-      tableBody.innerHTML = '';
 
       for (let i = 1; i <= 4; i++) {
         const num1 = baseValue * i;
